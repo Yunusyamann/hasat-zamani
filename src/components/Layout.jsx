@@ -13,7 +13,7 @@ export default function Layout({ children }) {
     await logout();
     navigate('/');
   }
-
+  
   return (
     <div className="app-shell">
       <header className="site-header">
