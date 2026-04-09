@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createMeetingRequest, getPublicProfile, getPublicSlotsBySlug } from '../lib/firestore';
 import { formatDate, formatTimeRange, groupSlotsByCity, sortSlotsByDateAsc } from '../utils/date';
 
@@ -11,6 +12,15 @@ const initialRequest = {
   requesterLocation: '',
   message: '',
 };
+
+function fadeUp(delay = 0) {
+  return {
+    initial: { opacity: 0, y: 22 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 },
+    transition: { duration: 0.45, delay },
+  };
+}
 
 export default function PublicProfilePage() {
   const { slug } = useParams();
@@ -85,13 +95,13 @@ export default function PublicProfilePage() {
   }
 
   if (busy) {
-    return <div className="page-center">Profil yükleniyor...</div>;
+    return <div className="hz-page-center">Profil yükleniyor...</div>;
   }
 
   if (!profile) {
     return (
-      <div className="container section-block narrow-wrap">
-        <div className="panel-card center-state-card">
+      <div className="hz-container hz-narrow-wrap hz-state-wrap">
+        <div className="hz-state-card">
           <h1>Profil bulunamadı</h1>
           <p>Bağlantı yanlış olabilir ya da profil yayından kaldırılmış olabilir.</p>
         </div>
@@ -100,61 +110,92 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <section className="public-shell-v2">
-      <div className="container public-grid-v2">
-        <aside className="profile-card-v2">
-          <div className="section-chip subtle">Hasat Zamanı profili</div>
+    <section className="hz-public-page">
+      <div className="hz-container hz-public-grid">
+        <motion.aside {...fadeUp(0)} className="hz-profile-card">
+          <div className="hz-chip hz-chip-soft">Hasat Zamanı profili</div>
+          <div className="hz-profile-avatar">{profile.displayName?.slice(0, 1) || 'H'}</div>
           <h1>{profile.displayName}</h1>
-          <div className="public-role">{profile.title}</div>
-          <p className="public-about">{profile.about}</p>
+          <div className="hz-public-role">{profile.title}</div>
+          <p className="hz-public-about">{profile.about}</p>
 
-          <div className="profile-facts-v2">
-            <div className="fact-item-v2">
+          <div className="hz-profile-facts">
+            <div className="hz-fact-card">
               <span>Şu an bulunduğu şehir</span>
               <strong>{profile.currentCity || 'Belirtilmedi'}</strong>
             </div>
-            <div className="fact-item-v2">
+
+            <div className="hz-fact-card">
               <span>Karşılama notu</span>
               <strong>
                 {profile.welcomeMessage || 'Eski günleri konuşmak için uygun bir zaman seçebilirsiniz.'}
               </strong>
             </div>
-            {profile.linkedinUrl ? (
-              <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="btn btn-secondary btn-block">
-                LinkedIn profiline git
-              </a>
-            ) : null}
           </div>
-        </aside>
 
-        <div className="booking-area-v2">
-          <section className="panel-card">
-            <div className="panel-head">
+          {profile.linkedinUrl ? (
+            <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="hz-btn hz-btn-secondary hz-btn-block">
+              LinkedIn profiline git
+            </a>
+          ) : null}
+        </motion.aside>
+
+        <div className="hz-booking-area">
+          <motion.section {...fadeUp(0.05)} className="hz-panel-card">
+            <div className="hz-panel-head">
               <div>
-                <div className="small-kicker">Müsait zamanlar</div>
+                <div className="hz-eyebrow">Müsait zamanlar</div>
                 <h2>Bir tarih ve saat seçin</h2>
               </div>
             </div>
 
-            {success ? <div className="notice success">{success}</div> : null}
-            {error ? <div className="notice error">{error}</div> : null}
+            <AnimatePresence mode="wait">
+              {success ? (
+                <motion.div
+                  key="success"
+                  className="hz-notice hz-notice-success"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  {success}
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+
+            <AnimatePresence mode="wait">
+              {error ? (
+                <motion.div
+                  key="error"
+                  className="hz-notice hz-notice-error"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  {error}
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
 
             {slots.length === 0 ? (
-              <div className="empty-box">Şu an yayınlanmış uygunluk bulunmuyor. Daha sonra tekrar bakabilirsiniz.</div>
+              <div className="hz-empty-box">
+                Şu an yayınlanmış uygunluk bulunmuyor. Daha sonra tekrar bakabilirsiniz.
+              </div>
             ) : (
-              <div className="city-slot-groups-v2">
+              <div className="hz-city-groups">
                 {Object.entries(groupedSlots).map(([city, citySlots]) => (
-                  <div key={city} className="city-slot-block-v2">
-                    <div className="city-slot-head">
+                  <div key={city} className="hz-city-block">
+                    <div className="hz-list-head">
                       <h3>{city}</h3>
                       <span>{citySlots.length} slot</span>
                     </div>
-                    <div className="slot-grid-v2">
+
+                    <div className="hz-slot-grid">
                       {citySlots.map((slot) => (
                         <button
                           key={slot.id}
                           type="button"
-                          className={selectedSlot?.id === slot.id ? 'slot-choice-card active' : 'slot-choice-card'}
+                          className={selectedSlot?.id === slot.id ? 'hz-public-slot active' : 'hz-public-slot'}
                           onClick={() => setSelectedSlot(slot)}
                         >
                           <strong>{formatDate(slot.date)}</strong>
@@ -167,12 +208,12 @@ export default function PublicProfilePage() {
                 ))}
               </div>
             )}
-          </section>
+          </motion.section>
 
-          <section className="panel-card">
-            <div className="panel-head">
+          <motion.section {...fadeUp(0.1)} className="hz-panel-card">
+            <div className="hz-panel-head">
               <div>
-                <div className="small-kicker">Buluşma isteği</div>
+                <div className="hz-eyebrow">Buluşma isteği</div>
                 <h2>
                   {selectedSlot
                     ? `${selectedSlot.city} · ${formatDate(selectedSlot.date)} için notunu bırak`
@@ -181,7 +222,7 @@ export default function PublicProfilePage() {
               </div>
             </div>
 
-            <form className="grid-form-v2 two-columns" onSubmit={handleSubmit}>
+            <form className="hz-form-grid hz-form-grid-2" onSubmit={handleSubmit}>
               <label>
                 Ad Soyad
                 <input
@@ -228,7 +269,7 @@ export default function PublicProfilePage() {
                 />
               </label>
 
-              <label className="col-span-2">
+              <label className="hz-col-span-2">
                 Bulunduğunuz şehir
                 <input
                   type="text"
@@ -239,7 +280,7 @@ export default function PublicProfilePage() {
                 />
               </label>
 
-              <label className="col-span-2">
+              <label className="hz-col-span-2">
                 Kısa notunuz
                 <textarea
                   name="message"
@@ -251,11 +292,11 @@ export default function PublicProfilePage() {
                 />
               </label>
 
-              <button type="submit" className="btn btn-primary btn-block col-span-2" disabled={!selectedSlot || sending}>
+              <button type="submit" className="hz-btn hz-btn-primary hz-btn-block hz-col-span-2" disabled={!selectedSlot || sending}>
                 {sending ? 'Gönderiliyor...' : 'Buluşma isteğini gönder'}
               </button>
             </form>
-          </section>
+          </motion.section>
         </div>
       </div>
     </section>
