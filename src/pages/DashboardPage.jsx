@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import {
   acceptRequest,
@@ -34,6 +35,15 @@ const statusLabels = {
   accepted: 'Kabul edildi',
   rejected: 'Reddedildi',
 };
+
+function cardMotion(delay = 0) {
+  return {
+    initial: { opacity: 0, y: 22 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 },
+    transition: { duration: 0.45, delay },
+  };
+}
 
 export default function DashboardPage() {
   const { user, profile, refreshProfile } = useAuth();
@@ -88,6 +98,7 @@ export default function DashboardPage() {
   }, [profileForm.slug]);
 
   const pendingCount = requests.filter((request) => request.status === 'pending').length;
+  const acceptedCount = requests.filter((request) => request.status === 'accepted').length;
 
   function handleProfileChange(event) {
     const { name, value } = event.target;
@@ -197,55 +208,88 @@ export default function DashboardPage() {
   }
 
   return (
-    <section className="dashboard-shell-v2">
-      <div className="container">
-        <div className="dashboard-topbar-v2">
+    <section className="hz-dashboard-page">
+      <div className="hz-container">
+        <motion.div {...cardMotion(0)} className="hz-dashboard-hero">
           <div>
-            <div className="section-chip subtle">Yönetim paneli</div>
-            <h1 className="dashboard-title-v2">Profilini düzenle, uygunluk yayınla, talepleri yönet.</h1>
-            <p className="dashboard-lead-v2">
-              Panelini sade tuttuk: önce profilini kaydet, sonra şehir ve saat bazlı slotlarını yayınla.
-              Gelen talepleri de aşağıdaki listeden tek tıkla yönet.
+            <div className="hz-chip hz-chip-soft">Yönetim paneli</div>
+            <h1>Profilini düzenle, uygunluk yayınla, gelen buluşma isteklerini yönet.</h1>
+            <p>
+              Her şeyi tek yerde topladık. Önce profilini kaydet, sonra şehir ve saat bazlı
+              slotlarını yayınla. Talepler geldiğinde birkaç tıkla yanıt ver.
             </p>
           </div>
 
-          <div className="stats-cluster">
-            <div className="stat-tile">
+          <div className="hz-dashboard-stats">
+            <div className="hz-dashboard-stat-card">
               <span>Yayındaki slot</span>
               <strong>{slots.length}</strong>
             </div>
-            <div className="stat-tile">
+            <div className="hz-dashboard-stat-card">
               <span>Bekleyen talep</span>
               <strong>{pendingCount}</strong>
             </div>
-            <div className="share-panel-v2">
-              <div className="share-caption">Paylaşım bağlantın</div>
-              <div className="share-link-box">{publicLink || 'Önce profil bağlantını kaydet'}</div>
-              <button
-                type="button"
-                className="btn btn-secondary btn-block"
-                onClick={() => publicLink && navigator.clipboard.writeText(publicLink)}
-                disabled={!publicLink}
-              >
-                Linki kopyala
-              </button>
+            <div className="hz-dashboard-stat-card">
+              <span>Kabul edilen</span>
+              <strong>{acceptedCount}</strong>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {error ? <div className="notice error">{error}</div> : null}
-        {feedback ? <div className="notice success">{feedback}</div> : null}
+        <motion.div {...cardMotion(0.05)} className="hz-share-banner">
+          <div>
+            <div className="hz-eyebrow">Paylaşım bağlantın</div>
+            <div className="hz-share-link">{publicLink || 'Önce profil bağlantını kaydet'}</div>
+          </div>
 
-        <div className="dashboard-grid-v2">
-          <section className="panel-card panel-card-large">
-            <div className="panel-head">
+          <button
+            type="button"
+            className="hz-btn hz-btn-secondary"
+            onClick={() => publicLink && navigator.clipboard.writeText(publicLink)}
+            disabled={!publicLink}
+          >
+            Linki kopyala
+          </button>
+        </motion.div>
+
+        <AnimatePresence mode="wait">
+          {error ? (
+            <motion.div
+              key="error"
+              className="hz-notice hz-notice-error"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {error}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
+          {feedback ? (
+            <motion.div
+              key="feedback"
+              className="hz-notice hz-notice-success"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {feedback}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        <div className="hz-dashboard-grid">
+          <motion.section {...cardMotion(0.08)} className="hz-panel-card">
+            <div className="hz-panel-head">
               <div>
-                <div className="small-kicker">Profil ayarları</div>
+                <div className="hz-eyebrow">Profil ayarları</div>
                 <h2>Herkese açık sayfanı düzenle</h2>
               </div>
             </div>
 
-            <form className="grid-form-v2 two-columns" onSubmit={handleProfileSave}>
+            <form className="hz-form-grid hz-form-grid-2" onSubmit={handleProfileSave}>
               <label>
                 Görünecek isim
                 <input
@@ -293,7 +337,7 @@ export default function DashboardPage() {
                 />
               </label>
 
-              <label className="col-span-2">
+              <label className="hz-col-span-2">
                 Kısa biyografi
                 <textarea
                   name="about"
@@ -327,21 +371,21 @@ export default function DashboardPage() {
                 />
               </label>
 
-              <button type="submit" className="btn btn-primary btn-block col-span-2" disabled={savingProfile}>
+              <button type="submit" className="hz-btn hz-btn-primary hz-btn-block hz-col-span-2" disabled={savingProfile}>
                 {savingProfile ? 'Kaydediliyor...' : 'Profili kaydet'}
               </button>
             </form>
-          </section>
+          </motion.section>
 
-          <section className="panel-card">
-            <div className="panel-head">
+          <motion.section {...cardMotion(0.12)} className="hz-panel-card">
+            <div className="hz-panel-head">
               <div>
-                <div className="small-kicker">Müsaitlik</div>
+                <div className="hz-eyebrow">Müsaitlik</div>
                 <h2>Yeni slot ekle</h2>
               </div>
             </div>
 
-            <form className="grid-form-v2" onSubmit={handleCreateSlot}>
+            <form className="hz-form-grid" onSubmit={handleCreateSlot}>
               <label>
                 Şehir
                 <input
@@ -380,98 +424,101 @@ export default function DashboardPage() {
                 </select>
               </label>
 
-              <button type="submit" className="btn btn-primary btn-block" disabled={savingSlot}>
+              <button type="submit" className="hz-btn hz-btn-primary hz-btn-block" disabled={savingSlot}>
                 {savingSlot ? 'Ekleniyor...' : 'Slot ekle'}
               </button>
             </form>
 
-            <div className="slot-list-panel">
-              <div className="slot-list-head">
-                <h3>Yayınlanan slotlar</h3>
-                <span>{slots.length} adet</span>
-              </div>
+            <div className="hz-divider" />
 
-              {loadingData ? (
-                <div className="empty-box">Veriler yükleniyor...</div>
-              ) : slots.length === 0 ? (
-                <div className="empty-box">Henüz yayınlanmış bir müsaitlik yok.</div>
-              ) : (
-                <div className="stack-list">
-                  {slots.map((slot) => (
-                    <article key={slot.id} className="slot-row-card">
-                      <div>
-                        <strong>{slot.city}</strong>
-                        <p>
-                          {formatDate(slot.date)} · {formatTimeRange(slot.startTime, slot.endTime)}
-                        </p>
-                        <span>{slot.meetingType}</span>
-                      </div>
-                      <button type="button" className="inline-text-link danger" onClick={() => handleDeleteSlot(slot.id)}>
-                        Kaldır
-                      </button>
-                    </article>
-                  ))}
-                </div>
-              )}
+            <div className="hz-list-head">
+              <h3>Yayınlanan slotlar</h3>
+              <span>{slots.length} adet</span>
             </div>
-          </section>
+
+            {loadingData ? (
+              <div className="hz-empty-box">Veriler yükleniyor...</div>
+            ) : slots.length === 0 ? (
+              <div className="hz-empty-box">Henüz yayınlanmış bir müsaitlik yok.</div>
+            ) : (
+              <div className="hz-stack-list">
+                {slots.map((slot) => (
+                  <article key={slot.id} className="hz-slot-item">
+                    <div>
+                      <strong>{slot.city}</strong>
+                      <p>
+                        {formatDate(slot.date)} · {formatTimeRange(slot.startTime, slot.endTime)}
+                      </p>
+                      <span>{slot.meetingType}</span>
+                    </div>
+
+                    <button type="button" className="hz-inline-link hz-inline-danger" onClick={() => handleDeleteSlot(slot.id)}>
+                      Kaldır
+                    </button>
+                  </article>
+                ))}
+              </div>
+            )}
+          </motion.section>
         </div>
 
-        <section className="panel-card request-panel-v2">
-          <div className="panel-head split">
+        <motion.section {...cardMotion(0.16)} className="hz-panel-card hz-request-section">
+          <div className="hz-panel-head">
             <div>
-              <div className="small-kicker">Gelen talepler</div>
+              <div className="hz-eyebrow">Gelen talepler</div>
               <h2>Buluşma isteklerini buradan yönet</h2>
             </div>
           </div>
 
           {loadingData ? (
-            <div className="empty-box">Talepler yükleniyor...</div>
+            <div className="hz-empty-box">Talepler yükleniyor...</div>
           ) : requests.length === 0 ? (
-            <div className="empty-box">Henüz gelen bir buluşma isteği yok.</div>
+            <div className="hz-empty-box">Henüz gelen bir buluşma isteği yok.</div>
           ) : (
-            <div className="request-grid-v2">
+            <div className="hz-request-grid">
               {requests.map((request) => (
-                <article key={request.id} className="request-card-v2">
-                  <div className="request-topline">
+                <article key={request.id} className="hz-request-card">
+                  <div className="hz-request-top">
                     <div>
                       <h3>{request.requesterName}</h3>
                       <p>{request.slotLabel}</p>
                     </div>
-                    <span className={`status-pill ${request.status}`}>{statusLabels[request.status] || request.status}</span>
+                    <span className={`hz-status-pill ${request.status}`}>
+                      {statusLabels[request.status] || request.status}
+                    </span>
                   </div>
 
-                  <div className="request-meta-list">
+                  <div className="hz-request-meta">
                     <span>{request.requesterEmail}</span>
                     {request.requesterCompany ? <span>{request.requesterCompany}</span> : null}
                     {request.requesterLocation ? <span>{request.requesterLocation}</span> : null}
                   </div>
 
-                  <p className="request-message">{request.message}</p>
+                  <p className="hz-request-message">{request.message}</p>
 
                   {request.requesterLinkedIn ? (
-                    <a href={request.requesterLinkedIn} target="_blank" rel="noreferrer" className="inline-link-accent">
+                    <a href={request.requesterLinkedIn} target="_blank" rel="noreferrer" className="hz-inline-link">
                       LinkedIn profilini aç
                     </a>
                   ) : null}
 
                   {request.status === 'pending' ? (
-                    <div className="card-actions-row">
-                      <button type="button" className="btn btn-primary" onClick={() => handleAccept(request.id, request.slotId)}>
+                    <div className="hz-card-actions">
+                      <button type="button" className="hz-btn hz-btn-primary" onClick={() => handleAccept(request.id, request.slotId)}>
                         Kabul et
                       </button>
-                      <button type="button" className="btn btn-secondary" onClick={() => handleReject(request.id)}>
+                      <button type="button" className="hz-btn hz-btn-secondary" onClick={() => handleReject(request.id)}>
                         Reddet
                       </button>
                     </div>
                   ) : request.responseMessage ? (
-                    <div className="response-note-box">Yanıt notu: {request.responseMessage}</div>
+                    <div className="hz-response-box">Yanıt notu: {request.responseMessage}</div>
                   ) : null}
                 </article>
               ))}
             </div>
           )}
-        </section>
+        </motion.section>
       </div>
     </section>
   );

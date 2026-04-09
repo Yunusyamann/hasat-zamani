@@ -1,147 +1,179 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const highlights = [
   {
-    title: 'Paylaşılabilir kişisel sayfa',
-    text: 'Emekli olan kişi kendi linkini LinkedIn veya başka bir mecrada paylaşır. Herkes aynı sade sayfadan erişir.',
+    title: 'Kişisel buluşma sayfası',
+    text: 'Tek bir bağlantıyla sizi tanıyan insanlara sade, güven veren ve modern bir görünüm sunun.',
   },
   {
-    title: 'Şehir ve tarih odaklı uygunluk',
-    text: 'Ankara, Berlin ya da İstanbul fark etmez; hangi şehirde ne zaman müsait olduğunuzu ayrı ayrı yayınlarsınız.',
+    title: 'Şehir ve zaman odaklı uygunluk',
+    text: 'Hangi şehirde, hangi tarihte, hangi saatler arasında müsait olduğunuzu kolayca yayınlayın.',
   },
   {
-    title: 'Samimi ama kontrollü istek akışı',
-    text: 'Ziyaretçi kısa bir not bırakır, ev sahibi panelden talebi kabul eder ya da reddeder.',
+    title: 'Samimi istek akışı',
+    text: 'İnsanlar kısa bir notla size ulaşsın, siz de talepleri tek panelden değerlendirin.',
   },
 ];
 
 const steps = [
-  'Kayıt olun ve herkese açık profilinizi birkaç dakikada hazırlayın.',
-  'Şehir, gün, saat ve buluşma tipi seçerek slotlarınızı yayınlayın.',
-  'Bağlantınızı paylaşın; sizi tanıyan kişiler uygun zamanı seçip istek göndersin.',
-  'Gelen talepleri tek panelden yönetin ve onayladığınız slotu otomatik kapatın.',
+  'Profilinizi birkaç dakikada hazırlayın ve paylaşılabilir bağlantınızı oluşturun.',
+  'Şehir, tarih, saat ve buluşma tipine göre uygunluk slotları ekleyin.',
+  'Bağlantınızı paylaşın; sizi tanıyan kişiler uygun zamanı seçip not bıraksın.',
+  'Talepleri panelden yönetin ve onayladığınız buluşmayı netleştirin.',
 ];
+
+const floatingCards = [
+  'İstanbul · 14 Mayıs · Kahve',
+  'Berlin · 22 Mayıs · Öğle yemeği',
+  'Ankara · 03 Haziran · Kısa sohbet',
+];
+
+function fadeUp(delay = 0) {
+  return {
+    initial: { opacity: 0, y: 30 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.25 },
+    transition: { duration: 0.55, delay },
+  };
+}
 
 export default function HomePage() {
   return (
     <>
-      <section className="hero-shell">
-        <div className="container hero-grid-v2">
-          <div className="hero-copy-block">
-            <div className="section-chip">Vefa dolu profesyonel buluşma platformu</div>
-            <h1 className="hero-title-v2">
+      <section className="hz-hero">
+        <div className="hz-container hz-hero-grid">
+          <motion.div {...fadeUp(0)} className="hz-hero-copy">
+            <div className="hz-chip">Vefa dolu profesyonel buluşma platformu</div>
+
+            <h1>
               Yılların emeğini,
-              <br /> yeniden kurulacak güzel masalara taşıyın.
+              <span> yeniden kurulacak güzel masalara taşıyın.</span>
             </h1>
-            <p className="hero-text-v2">
-              Hasat Zamanı; emekli olmuş ya da aktif iş hayatından çekilmiş kişilerin, geçmişte hayatına
-              dokundukları insanlarla yeniden bir araya gelmesini kolaylaştırır. Kahve, kahvaltı, öğle yemeği
-              veya kısa bir sohbet için şehir ve tarih bazlı uygunluk yayınlayın, istekleri zarif bir akışla yönetin.
+
+            <p>
+              Hasat Zamanı; emekli olmuş veya aktif iş hayatından çekilmiş kişilerin,
+              geçmişte hayatına dokundukları insanlarla yeniden bir araya gelmesini kolaylaştırır.
+              Sıcak, sakin ve güven veren bir deneyimle buluşmalarınızı planlayın.
             </p>
 
-            <div className="hero-cta-row">
-              <Link to="/giris" className="btn btn-primary btn-lg">
+            <div className="hz-hero-actions">
+              <Link to="/giris" className="hz-btn hz-btn-primary hz-btn-lg">
                 Hemen başla
               </Link>
-              <a href="#detay" className="btn btn-secondary btn-lg">
+              <a href="#nasil-calisir" className="hz-btn hz-btn-secondary hz-btn-lg">
                 Nasıl çalışır?
               </a>
             </div>
 
-            <div className="hero-metrics">
-              <div className="metric-card">
-                <strong>Şehir bazlı</strong>
-                <span>Her şehir için ayrı uygunluk</span>
-              </div>
-              <div className="metric-card">
+            <div className="hz-hero-stats">
+              <div className="hz-stat-card">
                 <strong>Tek link</strong>
                 <span>Paylaşılabilir kişisel profil</span>
               </div>
-              <div className="metric-card">
+              <div className="hz-stat-card">
+                <strong>Şehir bazlı</strong>
+                <span>Esnek müsaitlik yönetimi</span>
+              </div>
+              <div className="hz-stat-card">
                 <strong>Kolay onay</strong>
-                <span>Kabul et, reddet, yönet</span>
+                <span>Basit ve kontrollü akış</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="hero-showcase-card">
-            <div className="showcase-window">
-              <div className="window-header">
-                <div className="window-dots">
+          <motion.div
+            className="hz-hero-visual"
+            initial={{ opacity: 0, scale: 0.95, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            <div className="hz-glow hz-glow-1" />
+            <div className="hz-glow hz-glow-2" />
+
+            <div className="hz-showcase-card">
+              <div className="hz-showcase-top">
+                <div className="hz-window-dots">
                   <span />
                   <span />
                   <span />
                 </div>
-                <div className="window-label">Örnek akış</div>
+                <div className="hz-window-label">Örnek profil akışı</div>
               </div>
 
-              <div className="journey-stack">
-                <article className="journey-step accent-green">
-                  <div className="journey-step-title">1. Profil bağlantısı</div>
-                  <p>hasatzamani.com/u/ayse-yildirim</p>
-                </article>
-                <article className="journey-step accent-amber">
-                  <div className="journey-step-title">2. Müsaitlik seçimi</div>
-                  <p>12 Mayıs · Ankara · 10:30 - 11:30 · Kahve</p>
-                </article>
-                <article className="journey-step accent-white">
-                  <div className="journey-step-title">3. Not bırakma</div>
-                  <p>
-                    “Birlikte çalıştığımız yılları anmak ve size bir kahve ısmarlamak isterim.”
-                  </p>
-                </article>
-                <article className="journey-step accent-soft">
-                  <div className="journey-step-title">4. Panel onayı</div>
-                  <p>Talep kabul edilir, slot kapanır ve buluşma akışı netleşir.</p>
-                </article>
+              <div className="hz-profile-preview">
+                <div className="hz-avatar-ring">AY</div>
+                <div>
+                  <strong>Ayşe Yıldırım</strong>
+                  <p>Eski Genel Müdür · Mentor</p>
+                </div>
+              </div>
+
+              <div className="hz-preview-note">
+                “Birlikte çalıştığımız yılları anmak ve size kahve ısmarlamak isterim.”
+              </div>
+
+              <div className="hz-preview-list">
+                {floatingCards.map((item, index) => (
+                  <motion.div
+                    key={item}
+                    className="hz-preview-pill"
+                    initial={{ opacity: 0, x: 18 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.25 + index * 0.12, duration: 0.45 }}
+                  >
+                    {item}
+                  </motion.div>
+                ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <section className="section-block" id="detay">
-        <div className="container">
-          <div className="section-head-row">
+      <section className="hz-section" id="nasil-calisir">
+        <div className="hz-container">
+          <motion.div {...fadeUp(0)} className="hz-section-head">
             <div>
-              <div className="section-chip subtle">Neden Hasat Zamanı?</div>
-              <h2 className="section-title">Randevu sistemi gibi değil, sıcak ve düzenli bir buluşma deneyimi</h2>
+              <div className="hz-chip hz-chip-soft">Neden Hasat Zamanı?</div>
+              <h2>Sıradan bir randevu ekranı değil, zarif bir yeniden buluşma deneyimi</h2>
             </div>
-            <p className="section-side-copy">
-              Burada amaç sadece slot açmak değil; profesyonel hayatta iz bırakmış kişilere yeniden ulaşmayı
-              doğal, zarif ve kullanıcı dostu hale getirmek.
-            </p>
-          </div>
 
-          <div className="feature-grid-v2">
-            {highlights.map((item) => (
-              <article key={item.title} className="feature-card-v2">
-                <div className="feature-badge-dot" />
+            <p>
+              Amaç sadece slot yayınlamak değil; geçmişte iz bırakmış insanlara yeniden ulaşmayı
+              kolay, estetik ve güven veren bir hale getirmek.
+            </p>
+          </motion.div>
+
+          <div className="hz-feature-grid">
+            {highlights.map((item, index) => (
+              <motion.article key={item.title} {...fadeUp(index * 0.08)} className="hz-feature-card">
+                <div className="hz-feature-icon" />
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
-              </article>
+              </motion.article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="section-block muted-band">
-        <div className="container roadmap-wrap">
-          <div className="roadmap-copy">
-            <div className="section-chip subtle">Kurulum akışı</div>
-            <h2 className="section-title">Dört adımda yayınlayın, paylaşın, buluşmaları yönetin</h2>
-            <p>
-              İlk sürüm sade olmalı: profil, kişisel link, müsaitlik, istek formu ve panel onayı. Geri kalan her şey
-              bunun üstüne inşa edilir.
+      <section className="hz-section hz-section-soft">
+        <div className="hz-container hz-roadmap-grid">
+          <motion.div {...fadeUp(0)}>
+            <div className="hz-chip hz-chip-soft">Kurulum akışı</div>
+            <h2>Basit başla, temiz ilerle, kolay yönet</h2>
+            <p className="hz-muted-copy">
+              Ürünün merkezinde profil, paylaşılabilir bağlantı, uygunluk ve buluşma isteği akışı yer alır.
+              Her şey bu omurganın üzerine kurulur.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="timeline-stack">
+          <div className="hz-timeline">
             {steps.map((step, index) => (
-              <div key={step} className="timeline-item">
-                <div className="timeline-index">0{index + 1}</div>
+              <motion.div key={step} {...fadeUp(index * 0.08)} className="hz-timeline-item">
+                <div className="hz-timeline-index">0{index + 1}</div>
                 <div>{step}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

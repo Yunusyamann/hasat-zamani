@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 
 const initialForm = {
@@ -35,6 +36,7 @@ export default function LoginPage() {
         await login(form.email, form.password);
       } else {
         await register(form.email, form.password);
+        setInfo('Hesabınız oluşturuldu. Şimdi panelinize geçebilirsiniz.');
       }
     } catch (err) {
       setError('İşlem sırasında bir hata oluştu. E-posta ve şifrenizi tekrar kontrol edin.');
@@ -64,50 +66,60 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="auth-shell">
-      <div className="container auth-layout-v2">
-        <div className="auth-promo-panel">
-          <div className="section-chip">Yönetim paneli girişi</div>
-          <h1>Profilini oluştur, linkini paylaş, buluşmaları tek ekrandan yönet.</h1>
+    <section className="hz-auth-page">
+      <div className="hz-container hz-auth-grid">
+        <motion.div
+          className="hz-auth-side"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="hz-chip">Yönetim paneli girişi</div>
+          <h1>Profilini hazırla, bağlantını paylaş, buluşmaları şık bir akışla yönet.</h1>
           <p>
-            Hasat Zamanı ile kullanıcılara sıcak ama düzenli bir deneyim sun. Önce hesabını oluştur,
-            sonra herkese açık profil sayfanı birkaç dakikada yayına al.
+            Hasat Zamanı ile kullanıcılarına sıcak ama düzenli bir deneyim sun.
+            Hesabını oluştur, herkese açık sayfanı yayınla ve gelen istekleri tek yerden takip et.
           </p>
 
-          <div className="promo-points">
-            <div className="promo-point">
-              <strong>Şık profil sayfası</strong>
-              <span>Emekli olan kişi için paylaşılabilir tek bağlantı</span>
+          <div className="hz-auth-points">
+            <div className="hz-auth-point">
+              <strong>Paylaşılabilir profil</strong>
+              <span>Tek link ile sade ve güven veren profil</span>
             </div>
-            <div className="promo-point">
-              <strong>Slot yönetimi</strong>
+            <div className="hz-auth-point">
+              <strong>Müsaitlik yönetimi</strong>
               <span>Şehir, tarih, saat ve buluşma tipi bazlı yayın</span>
             </div>
-            <div className="promo-point">
-              <strong>Onay akışı</strong>
-              <span>Gelen talepleri panelden kabul et veya reddet</span>
+            <div className="hz-auth-point">
+              <strong>Kolay kontrol</strong>
+              <span>Gelen istekleri kabul et, reddet, düzenle</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="auth-card-v2">
-          <div className="auth-card-head">
+        <motion.div
+          className="hz-auth-card"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+        >
+          <div className="hz-auth-head">
             <div>
-              <div className="small-kicker">Hesabın</div>
+              <div className="hz-eyebrow">Hesabın</div>
               <h2>{mode === 'login' ? 'Panele giriş yap' : 'Yeni hesap oluştur'}</h2>
             </div>
 
-            <div className="mode-switch-v2">
+            <div className="hz-mode-switch">
               <button
                 type="button"
-                className={mode === 'login' ? 'mode-btn active' : 'mode-btn'}
+                className={mode === 'login' ? 'hz-mode-btn active' : 'hz-mode-btn'}
                 onClick={() => setMode('login')}
               >
                 Giriş
               </button>
               <button
                 type="button"
-                className={mode === 'register' ? 'mode-btn active' : 'mode-btn'}
+                className={mode === 'register' ? 'hz-mode-btn active' : 'hz-mode-btn'}
                 onClick={() => setMode('register')}
               >
                 Kayıt
@@ -115,7 +127,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <form className="stack-form" onSubmit={handleSubmit}>
+          <form className="hz-form-stack" onSubmit={handleSubmit}>
             <label>
               E-posta adresi
               <input
@@ -141,18 +153,43 @@ export default function LoginPage() {
               />
             </label>
 
-            {error ? <div className="notice error">{error}</div> : null}
-            {info ? <div className="notice success">{info}</div> : null}
+            <AnimatePresence mode="wait">
+              {error ? (
+                <motion.div
+                  key="error"
+                  className="hz-notice hz-notice-error"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                >
+                  {error}
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
 
-            <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
+            <AnimatePresence mode="wait">
+              {info ? (
+                <motion.div
+                  key="info"
+                  className="hz-notice hz-notice-success"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                >
+                  {info}
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+
+            <button type="submit" className="hz-btn hz-btn-primary hz-btn-block" disabled={busy}>
               {busy ? 'Lütfen bekleyin...' : mode === 'login' ? 'Giriş yap' : 'Hesap oluştur'}
             </button>
           </form>
 
-          <button type="button" className="inline-text-link" onClick={handlePasswordReset} disabled={busy}>
+          <button type="button" className="hz-inline-link" onClick={handlePasswordReset} disabled={busy}>
             Şifremi unuttum
           </button>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
